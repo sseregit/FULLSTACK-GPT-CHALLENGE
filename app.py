@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import TextLoader
@@ -26,9 +28,17 @@ with st.sidebar:
 def embed_file(file):
     file_content = file.read()
     file_path = f"./.cache/files/{file.name}"
+
+    mkdir_file_path(file_path)
+
     with open(file_path, "wb") as f:
         f.write(file_content)
-    cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
+
+    cache_file_path = "./.cache/embeddings/{file.name}"
+
+    mkdir_file_path(cache_file_path)
+
+    cache_dir = LocalFileStore(cache_file_path)
     splitter = CharacterTextSplitter.from_tiktoken_encoder(
         separator="\n",
         chunk_size=600,
@@ -42,6 +52,9 @@ def embed_file(file):
     retriever = vectorstore.as_retriever()
     return retriever
 
+def mkdir_file_path(file_path: str):
+    if not os.path.exists(file_path):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
 def send_message(message, role, save=True):
     with st.chat_message(role):
