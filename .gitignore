@@ -3,3 +3,4 @@ venv
 *.iml
 .env
 .cache
+faiss_data
